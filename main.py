@@ -67,13 +67,18 @@ if __name__ == '__main__':
         file_clear.write("")
 
     extracted_tours = []
-    while True:
-        scraped = scrape(URL)
-        extracted = extract(scraped)
+    try:
+        while True:
+            scraped = scrape(URL)
+            extracted = extract(scraped)
 
-        if extracted != 'No upcoming tours' and extracted not in extracted_tours:
-            store(extracted)
-            send_email(extracted)
-            extracted_tours.append(extracted)
+            if extracted != 'No upcoming tours' and extracted not in extracted_tours:
+                store(extracted)
+                send_email(extracted)
+                extracted_tours.append(extracted)
 
-        time.sleep(WAIT_TIME)
+            time.sleep(WAIT_TIME)
+
+    except KeyboardInterrupt:
+        print("Script terminated by user.")
+
