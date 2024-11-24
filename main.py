@@ -3,27 +3,38 @@ import requests
 import selectorlib
 from email.message import EmailMessage
 import time
+import os
 
 URL = "https://programmer100.pythonanywhere.com/tours/"
 HEADERS = {
     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
-PASSWORD = "onboooljmprmrzns"
-SENDER = "rishavdiyali@gmail.com"
-RECEIVER = "diyali.rishav.22@gmail.com"
+PASSWORD = os.getenv("PASSWORD")
+SENDER = os.getenv("SENDER")
+RECEIVER = os.getenv("RECEIVER")
 WAIT_TIME = 5*60
 
 def scrape(url):
     """Scrape the page source from the URL."""
-    response = requests.get(url, headers=HEADERS)
-    page_source = response.text
-    return page_source
+    try:
+        response = requests.get(url, headers=HEADERS)
+        page_source = response.text
+        return page_source
+
+    except requests.RequestException as e:
+        print(f"Failed to fetch URL: {e}")
+        return None
 
 
 def extract(src):
     """Extract the tour information from source code."""
-    extractor = selectorlib.Extractor.from_yaml_file("extract.yaml")
-    value = extractor.extract(src)["tours"]
-    return value
+    try:
+        extractor = selectorlib.Extractor.from_yaml_file("extract.yaml")
+        value = extractor.extract(src)["tours"]
+        return value
+
+    except KeyError as e:
+        print(f"Extraction failed: {e}")
+        return None
 
 
 def store(tour_data):
