@@ -2,6 +2,7 @@ import smtplib
 import requests
 import selectorlib
 from email.message import EmailMessage
+import time
 
 URL = "https://programmer100.pythonanywhere.com/tours/"
 HEADERS = {
@@ -9,6 +10,7 @@ HEADERS = {
 PASSWORD = "onboooljmprmrzns"
 SENDER = "rishavdiyali@gmail.com"
 RECEIVER = "diyali.rishav.22@gmail.com"
+WAIT_TIME = 5*60
 
 def scrape(url):
     """Scrape the page source from the URL."""
@@ -58,7 +60,9 @@ if __name__ == '__main__':
         scraped = scrape(URL)
         extracted = extract(scraped)
 
-        if extracted != 'No upcoming tours':
-            if extracted not in extracted_tours:
-                store(extracted)
-                # send_email(extracted)
+        if extracted != 'No upcoming tours' and extracted not in extracted_tours:
+            store(extracted)
+            send_email(extracted)
+            extracted_tours.append(extracted)
+
+        time.sleep(WAIT_TIME)
