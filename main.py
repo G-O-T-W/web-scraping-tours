@@ -47,7 +47,7 @@ def send_email(content):
     """Send an email."""
     email_msg = EmailMessage()
     email_msg["Subject"] = "Upcoming New Tour!"
-    email_msg.set_content(content)
+    email_msg.set_content(f"Hello,\n\nA new tour has been announced:\n\n{content}\n\nBest regards,\nYour Tour Bot")
 
     try:
         with smtplib.SMTP("smtp.gmail.com", 587) as gmail:
