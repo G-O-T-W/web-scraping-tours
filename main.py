@@ -1,6 +1,7 @@
 import smtplib
 import requests
 import selectorlib
+import sqlite3
 from email.message import EmailMessage
 import time
 import os
@@ -8,10 +9,16 @@ import os
 URL = "https://programmer100.pythonanywhere.com/tours/"
 HEADERS = {
     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
-PASSWORD = os.getenv("PASSWORD")
-SENDER = os.getenv("SENDER")
-RECEIVER = os.getenv("RECEIVER")
-WAIT_TIME = 5*60
+# PASSWORD = os.getenv("PASSWORD")
+# SENDER = os.getenv("SENDER")
+# RECEIVER = os.getenv("RECEIVER")
+PASSWORD = "dpxvobomcoeqxdcx"
+SENDER = "rishavdiyali@gmail.com"
+RECEIVER = "diyali.rishav.22@gmail.com"
+WAIT_TIME = 2
+
+connections = sqlite3.connect("data.db")
+
 
 def scrape(url):
     """Scrape the page source from the URL."""
@@ -36,11 +43,29 @@ def extract(src):
         print(f"Extraction failed: {e}")
         return None
 
+def read(extracted):
+    # with open("tours.txt", "r") as f:
+    #     return f.read()
 
-def store(tour_data):
-    """Store tour data in data.txt"""
-    with open("tours.txt", "a") as file:
-        file.write(tour_data + "\n")
+    extracted_row = extracted.split(",")
+    extracted_row = [item.strip() for item in extracted_row]
+    bandname, city, date = extracted_row
+    cursor = connections.cursor()
+    cursor.execute("SELECT * FROM tours WHERE bandname=? AND city=? AND date=?",(bandname, city, date))
+    row = cursor.fetchall()
+    return row
+
+
+def store(extracted):
+    """Store tour data.db in data.db.txt"""
+    # with open("tours.txt", "a") as file:
+    #     file.write(extracted + "\n")
+
+    extracted_row = extracted.split(",")
+    extracted_row = [item.strip() for item in extracted_row]
+    cursor = connections.cursor()
+    cursor.execute("INSERT INTO tours VALUES (?, ?, ?)", extracted_row)
+    connections.commit()
 
 
 def send_email(content):
@@ -55,7 +80,6 @@ def send_email(content):
             gmail.starttls()
             gmail.login(SENDER, PASSWORD)
             gmail.send_message(email_msg, SENDER, RECEIVER)
-        print(content)
         print("Email sent successfully.")
 
     except smtplib.SMTPException as e:
@@ -63,19 +87,24 @@ def send_email(content):
 
 
 if __name__ == '__main__':
-    with open("tours.txt", "w") as file_clear:
-        file_clear.write("")
+    # Uncomment this line if you are running the script for the first time for testing
+    # with open("tours.txt", "w") as file_clear:
+    #     file_clear.write("")
 
-    extracted_tours = []
     try:
         while True:
             scraped = scrape(URL)
             extracted = extract(scraped)
+            print(extracted)
 
-            if extracted != 'No upcoming tours' and extracted not in extracted_tours:
-                store(extracted)
-                send_email(extracted)
-                extracted_tours.append(extracted)
+            if extracted != 'No upcoming tours':
+                row = read(extracted)
+                # True when row is empty
+                if not row:
+                    store(extracted)
+                    send_email(extracted)
+                else:
+                    print("Tour already exists in database!")
 
             time.sleep(WAIT_TIME)
 
