@@ -9,13 +9,10 @@ import os
 URL = "https://programmer100.pythonanywhere.com/tours/"
 HEADERS = {
     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
-# PASSWORD = os.getenv("PASSWORD")
-# SENDER = os.getenv("SENDER")
-# RECEIVER = os.getenv("RECEIVER")
-PASSWORD = "dpxvobomcoeqxdcx"
-SENDER = "rishavdiyali@gmail.com"
-RECEIVER = "diyali.rishav.22@gmail.com"
-WAIT_TIME = 2
+PASSWORD = os.getenv("PASSWORD")
+SENDER = os.getenv("SENDER")
+RECEIVER = os.getenv("RECEIVER")
+WAIT_TIME = 2*60
 
 connections = sqlite3.connect("data.db")
 
